@@ -4,7 +4,7 @@
 
 <img width="1913" height="851" alt="image" src="https://github.com/user-attachments/assets/7fecc51c-6f16-4501-afe0-f0d4eb4a6a5e" />
 
-<img width="1913" height="851" alt="image" src="https://github.com/user-attachments/assets/b9009ad0-9b1f-496e-a1cd-0071435a9c06" />
+<img width="1919" height="849" alt="image" src="https://github.com/user-attachments/assets/6f7f1a3f-fdfc-4b3b-a1a0-32b65de86a07" />
 
 Upload a `.md` file, read it as a clean rendered document, and copy it out as
 rich text that pastes well into Word, Google Docs, or Slack.
