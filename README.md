@@ -1,5 +1,11 @@
 # Fieldnote — Markdown Viewer
 
+<img width="1894" height="837" alt="image" src="https://github.com/user-attachments/assets/9f876480-3c5b-4266-b2eb-bfe3ca155fea" />
+
+<img width="1913" height="851" alt="image" src="https://github.com/user-attachments/assets/7fecc51c-6f16-4501-afe0-f0d4eb4a6a5e" />
+
+<img width="1913" height="851" alt="image" src="https://github.com/user-attachments/assets/b9009ad0-9b1f-496e-a1cd-0071435a9c06" />
+
 Upload a `.md` file, read it as a clean rendered document, and copy it out as
 rich text that pastes well into Word, Google Docs, or Slack.
 
@@ -158,7 +164,7 @@ Slack's message composer.
 - Theme respects `prefers-color-scheme` and exposes `color-scheme` so native
   form controls and scrollbars match.
 
-## Known limitations / what I'd improve with more time
+## What I'd improve with more time
 
 - **Syntax-highlight colors don't survive copy.** The clipboard HTML inlines
   layout/color styling per tag, but not the individual `hljs-*` token
