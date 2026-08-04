@@ -1,0 +1,453 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+::selection {
+  background: #cddcff;
+}
+html.dark ::selection {
+  background: #274690;
+  color: #f4f4f5;
+}
+
+/* Visible keyboard focus everywhere — accessibility floor */
+:focus-visible {
+  outline: 2px solid #2452ff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+html.dark :focus-visible {
+  outline-color: #7aa2ff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Themable palette — the document reads all colors from these vars. */
+:root {
+  --doc-text: #1c1d21;
+  --doc-heading: #101114;
+  --doc-muted: #4b4c53;
+  --doc-link: #2452ff;
+  --doc-link-underline: #b7c5ff;
+  --doc-border: #e4e4e7;
+  --doc-strong: #101114;
+  --doc-code-bg: #f1f1f4;
+  --doc-code-text: #b3261e;
+  --doc-code-border: #e4e4e7;
+  --doc-quote-bg: #f7f8fc;
+  --doc-quote-text: #33343a;
+  --doc-th-bg: #f7f7f8;
+  --doc-row-even: #fbfbfb;
+  --doc-marker: #71717a;
+  --doc-del: #71717a;
+  --doc-mark-bg: #fef3c7;
+  --doc-mark-text: #713f12;
+}
+
+html.dark {
+  --doc-text: #cfd0d6;
+  --doc-heading: #f4f4f5;
+  --doc-muted: #9a9ba3;
+  --doc-link: #8bb0ff;
+  --doc-link-underline: #3a4a78;
+  --doc-border: #2a2c33;
+  --doc-strong: #f4f4f5;
+  --doc-code-bg: #1d1f26;
+  --doc-code-text: #f2a1a1;
+  --doc-code-border: #2f313a;
+  --doc-quote-bg: #16181e;
+  --doc-quote-text: #c2c3cb;
+  --doc-th-bg: #1a1c22;
+  --doc-row-even: #15171c;
+  --doc-marker: #7c7e88;
+  --doc-del: #8b8d96;
+  --doc-mark-bg: #4a3a12;
+  --doc-mark-text: #fde68a;
+}
+
+/* ---------------------------------------------------------------- */
+/* Rendered markdown typography ("the document")                    */
+/* ---------------------------------------------------------------- */
+
+.doc {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--doc-text);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.doc > * + * {
+  margin-top: 1.15em;
+}
+
+.doc h1,
+.doc h2,
+.doc h3,
+.doc h4,
+.doc h5,
+.doc h6 {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--doc-heading);
+  scroll-margin-top: 5.5rem;
+}
+
+.doc h1 {
+  font-size: 1.875rem;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--doc-border);
+  margin-top: 2em;
+}
+.doc > h1:first-child {
+  margin-top: 0;
+}
+.doc h2 {
+  font-size: 1.4rem;
+  margin-top: 2.25em;
+  letter-spacing: -0.005em;
+}
+.doc h3 {
+  font-size: 1.15rem;
+  margin-top: 1.75em;
+}
+.doc h4 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--doc-muted);
+  margin-top: 1.5em;
+}
+.doc h5,
+.doc h6 {
+  font-size: 0.9rem;
+  color: var(--doc-muted);
+}
+
+.doc p {
+  margin-top: 1.15em;
+}
+
+.doc a {
+  color: var(--doc-link);
+  text-decoration: underline;
+  text-decoration-color: var(--doc-link-underline);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.15s ease;
+}
+.doc a:hover {
+  text-decoration-color: var(--doc-link);
+}
+
+.doc strong {
+  font-weight: 700;
+  color: var(--doc-strong);
+}
+
+.doc em {
+  font-style: italic;
+}
+
+.doc del {
+  color: var(--doc-del);
+  text-decoration: line-through;
+  text-decoration-color: var(--doc-del);
+}
+
+.doc mark {
+  background: var(--doc-mark-bg);
+  color: var(--doc-mark-text);
+  padding: 0.05em 0.25em;
+  border-radius: 3px;
+}
+
+.doc ul,
+.doc ol {
+  padding-left: 1.5em;
+}
+.doc ul {
+  list-style: disc;
+}
+.doc ol {
+  list-style: decimal;
+}
+.doc ul ul,
+.doc ol ol,
+.doc ul ol,
+.doc ol ul {
+  margin-top: 0.35em;
+  margin-bottom: 0.35em;
+}
+.doc ul ul {
+  list-style: circle;
+}
+.doc ul ul ul {
+  list-style: square;
+}
+.doc li {
+  margin-top: 0.35em;
+  padding-left: 0.25em;
+}
+.doc li > p {
+  margin-top: 0.5em;
+}
+.doc li::marker {
+  color: var(--doc-marker);
+}
+
+/* GFM task lists — no bullet, checkbox aligned with the text */
+.doc li:has(> input[type='checkbox']:first-child) {
+  list-style: none;
+  margin-left: -1.25em;
+}
+.doc input[type='checkbox'] {
+  margin-right: 0.5em;
+  accent-color: #2452ff;
+  width: 0.95em;
+  height: 0.95em;
+  vertical-align: -0.08em;
+}
+
+.doc blockquote {
+  border-left: 3px solid var(--doc-link);
+  background: var(--doc-quote-bg);
+  padding: 0.75em 1.1em;
+  border-radius: 0 4px 4px 0;
+  color: var(--doc-quote-text);
+  font-style: italic;
+}
+.doc blockquote > * + * {
+  margin-top: 0.75em;
+}
+
+.doc code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.85em;
+  background: var(--doc-code-bg);
+  border: 1px solid var(--doc-code-border);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: var(--doc-code-text);
+}
+
+/* Code block: header (language + copy) above a dark pre in both themes. */
+.doc .code-block {
+  margin-top: 1.15em;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #23242b;
+  background: #16171b;
+}
+.doc .code-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4em 0.9em;
+  background: #1c1d23;
+  border-bottom: 1px solid #23242b;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+.doc .code-lang {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a8b96;
+}
+.doc .code-copy {
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: #b7b9c4;
+  background: transparent;
+  border: 1px solid #33343c;
+  border-radius: 5px;
+  padding: 0.2em 0.6em;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.doc .code-copy:hover {
+  color: #f4f4f5;
+  border-color: #4a4b55;
+  background: #26272f;
+}
+.doc .code-copy.is-copied {
+  color: #86efac;
+  border-color: #2f6b45;
+  background: #16261c;
+}
+.doc .code-block pre {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+}
+
+.doc pre {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  background: #16171b;
+  color: #e4e4e7;
+  padding: 1em 1.15em;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-top: 1.15em;
+}
+.doc pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 1em;
+}
+
+.doc hr {
+  border: none;
+  border-top: 1px solid var(--doc-border);
+  margin: 2em 0;
+}
+
+/* Wide tables scroll inside themselves, not the page. */
+.doc table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Inter, ui-sans-serif, sans-serif;
+  font-size: 0.9rem;
+  margin-top: 1.15em;
+  display: block;
+  overflow-x: auto;
+}
+.doc th,
+.doc td {
+  border: 1px solid var(--doc-border);
+  padding: 0.5em 0.75em;
+  text-align: left;
+  vertical-align: top;
+}
+.doc th {
+  background: var(--doc-th-bg);
+  font-weight: 600;
+  color: var(--doc-heading);
+}
+.doc tr:nth-child(even) td {
+  background: var(--doc-row-even);
+}
+
+.doc img {
+  max-width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--doc-border);
+}
+
+/* KaTeX: let long display equations scroll rather than overflow the page */
+.doc .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5em 0;
+}
+.doc .katex {
+  font-size: 1.05em;
+}
+html.dark .doc .katex {
+  color: var(--doc-text);
+}
+
+/* Hard-failure fallback (see markdownToHtml catch): raw escaped source */
+.doc .fallback-raw {
+  white-space: pre-wrap;
+  color: var(--doc-text);
+}
+
+/* highlight.js token colors, tuned to the dark code-block background */
+.doc .hljs-keyword,
+.doc .hljs-selector-tag,
+.doc .hljs-literal,
+.doc .hljs-title.function_ {
+  color: #7aa2ff;
+}
+.doc .hljs-string,
+.doc .hljs-attr {
+  color: #9ece6a;
+}
+.doc .hljs-comment,
+.doc .hljs-quote {
+  color: #71717a;
+  font-style: italic;
+}
+.doc .hljs-number,
+.doc .hljs-built_in {
+  color: #e0af68;
+}
+.doc .hljs-title,
+.doc .hljs-name,
+.doc .hljs-type {
+  color: #f7768e;
+}
+.doc .hljs-variable,
+.doc .hljs-template-variable {
+  color: #bb9af7;
+}
+
+/* GitHub-style alert callouts: > [!NOTE] etc. */
+.doc .md-alert {
+  border-left: 3px solid #2452ff;
+  background: var(--doc-quote-bg);
+  border-radius: 0 6px 6px 0;
+  padding: 0.75em 1.1em;
+  font-style: normal;
+}
+.doc .md-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: Inter, sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4em;
+}
+.doc .md-alert-note { border-left-color: #2452ff; }
+.doc .md-alert-note .md-alert-title { color: #2452ff; }
+.doc .md-alert-warning { border-left-color: #d97706; background: #fdf6ec; }
+.doc .md-alert-warning .md-alert-title { color: #b45309; }
+.doc .md-alert-important { border-left-color: #7c3aed; background: #f7f5fd; }
+.doc .md-alert-important .md-alert-title { color: #7c3aed; }
+.doc .md-alert-caution { border-left-color: #dc2626; background: #fdf2f2; }
+.doc .md-alert-caution .md-alert-title { color: #dc2626; }
+.doc .md-alert-tip { border-left-color: #16a34a; background: #f2faf4; }
+.doc .md-alert-tip .md-alert-title { color: #16a34a; }
+
+/* Dark variants for the tinted alerts */
+html.dark .doc .md-alert-warning { background: #241a0c; }
+html.dark .doc .md-alert-warning .md-alert-title { color: #f0a94a; }
+html.dark .doc .md-alert-important { background: #1c1630; }
+html.dark .doc .md-alert-important .md-alert-title { color: #b490f5; }
+html.dark .doc .md-alert-caution { background: #2a1414; }
+html.dark .doc .md-alert-caution .md-alert-title { color: #f28b8b; }
+html.dark .doc .md-alert-tip { background: #10241a; }
+html.dark .doc .md-alert-tip .md-alert-title { color: #5fd08a; }
+html.dark .doc .md-alert-note .md-alert-title { color: #8bb0ff; }
+html.dark .doc .md-alert-note { border-left-color: #8bb0ff; }
