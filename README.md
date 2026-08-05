@@ -6,191 +6,85 @@
 
 <img width="1919" height="849" alt="image" src="https://github.com/user-attachments/assets/6f7f1a3f-fdfc-4b3b-a1a0-32b65de86a07" />
 
-Upload a `.md` file, read it as a clean rendered document, and copy it out as
-rich text that pastes well into Word, Google Docs, or Slack.
 
-Built for reading the kind of markdown AI models produce: technical docs with
-tables, code, LaTeX math, task lists, and GitHub-style callouts.
 
-## Feature highlights
+Drop in a `.md` file, get a clean rendered doc. Copy it as rich text that actually pastes nicely into Word, Google Docs, or Slack.
 
-- **Full GFM** — headings, lists (nested, ordered, task), tables with column
-  alignment, blockquotes, inline/fenced code, bold/italic/strikethrough,
-  autolinks.
-- **LaTeX math** — inline `$…$` and display `$$…$$` rendered with KaTeX.
-  Single-line `$$…$$` is auto-promoted to a centered display equation.
-- **GitHub alert callouts** — `> [!NOTE]`, `[!WARNING]`, `[!TIP]`, etc.
-- **One-click rich copy** — HTML + plain text + original markdown to the
-  clipboard in a single write; paste targets pick the richest format.
-- **Per-code-block copy** with an auto-detected language label.
-- **Light / dark theme** — follows the OS by default, togglable, remembered.
-- **Auto-generated outline** with scroll-spy (active section highlights as you
-  read) and a reading-progress bar. Collapses into a drawer on mobile.
-- **Resilient** — malformed markdown never crashes the app; uploaded HTML is
-  inert by construction.
+Built for the markdown AI spits out: tables, code blocks, LaTeX math, task lists, GitHub callouts. The stuff that usually breaks when you copy-paste.
 
-## Setup
+## What it does
+
+- **Full GFM** — headings, nested lists, task lists, tables with alignment, blockquotes, code (inline + fenced), bold/italic/strikethrough, autolinks
+- **LaTeX math** — inline `$...$` and display `$$...$$` via KaTeX. Single-line `$$` gets promoted to centered display automatically
+- **GitHub alerts** — `> [!NOTE]`, `[!WARNING]`, `[!TIP]`, all that
+- **One-click copy** — pushes HTML + plain text + markdown to clipboard in one go. Paste targets pick the richest format they support
+- **Per-block copy** — each code block gets its own copy button with language label
+- **Dark/light theme** — follows OS, togglable, remembers your choice
+- **Auto TOC** — headings become a clickable outline with scroll-spy and reading progress. Collapses to drawer on mobile
+- **Bulletproof** — malformed markdown won't crash. Uploaded HTML is inert by construction
+
+## Quick start
 
 ```bash
 npm install
-npm run dev      # local dev server
-npm run build    # production build -> dist/
-npm run preview  # serve the production build locally
+npm run dev      # local dev
+npm run build    # dist/
+npm run preview  # serve build locally
 ```
 
-Requires Node 18+. No environment variables, no backend — everything runs in
-the browser.
+Node 18+. No env vars, no backend — all browser.
 
-## Design decisions
+## Design choices
 
-**Reading pane over split-view.** Most tools that render markdown default to
-a side-by-side raw/rendered split. I skipped that: the target user (someone
-checking an AI-generated doc) wants to *read* the document, not compare it
-to its source. The raw source is one click away conceptually but not
-fighting for screen space by default.
+**Reading pane only.** No split view. You're here to *read* the doc, not diff it against source. Raw markdown is accessible but not fighting for space.
 
-**Type pairing: serif body, mono chrome.** Rendered prose uses Source Serif
-4 for long-form readability; UI chrome (top bar, sidebar, buttons, stats)
-uses JetBrains Mono to read as a developer tool rather than a generic blog
-theme. The two together are the main visual identity decision.
+**Serif body + mono chrome.** Source Serif 4 for the prose (readability), JetBrains Mono for UI chrome (tool feel). That's the whole visual identity.
 
-**Sidebar = outline + stats, not raw file browser.** Since only one file is
-open at a time, a generic file-tree sidebar would be decorative. Instead the
-sidebar auto-generates a clickable table of contents from headings, plus a
-small stats readout (word count, reading time, line count) — both derived
-from the actual document and both useful for someone skimming an AI-written
-report before reading it in full.
+**Sidebar = outline + stats.** Only one file open at a time, so a file-tree would be decorative. Instead you get clickable TOC + word count, reading time, line count. Actually useful for skimming AI reports.
 
-**One rendering pipeline, used twice.** A single `unified` pipeline
-(`remark-parse` → `remark-gfm` → `remark-math` → `remark-rehype` → alerts →
-sanitize → heading IDs → `rehype-katex` → `rehype-highlight` → code-block
-decoration → `rehype-stringify`) produces the HTML for both the on-screen
-render and the clipboard's `text/html` payload. This was a deliberate choice
-over using `react-markdown` for the screen and a separate converter for copy:
-it guarantees what you copy is exactly what you saw, and it's one thing to
-test instead of two. Stage order matters: heading IDs and KaTeX both run
-*after* sanitize so the sanitizer's id-prefixing doesn't break TOC anchors,
-and so KaTeX's own markup doesn't need to be whitelisted.
+**One pipeline, two uses.** `unified` chain produces HTML for both screen and clipboard copy. What you copy is exactly what you see. One thing to test instead of two. Order matters: heading IDs + KaTeX run *after* sanitization so TOC anchors don't break, and KaTeX markup doesn't need whitelisting.
 
-**GitHub-style alert callouts** (`> [!NOTE]`, `[!WARNING]`, etc.) are
-supported since they show up constantly in AI-generated docs (see the
-sample file) even though they're not in the core GFM spec.
+**Math first-class.** AI output loves LaTeX. `remark-math` + `rehype-katex` in the pipeline. KaTeX runs post-sanitization, renders invalid LaTeX in red (never crashes). One quirk: `remark-math` only treats `$$` as display when on their own lines, so we pre-pass to promote single-line `$$...$$` (common in AI output) to block form.
 
-**Math is first-class.** AI output leans heavily on LaTeX, so `remark-math`
-+ `rehype-katex` are wired into the same pipeline. KaTeX runs *after*
-sanitization (it only reads the math text that survived and emits its own
-escaped markup), and renders invalid LaTeX in red rather than throwing —
-consistent with the app's never-crash posture. One quirk worth calling out:
-`remark-math` only treats `$$` as *display* math when the delimiters are on
-their own lines, so a small pre-pass promotes single-line `$$…$$` (very
-common in AI output) to block form, skipping anything inside code fences.
-
-**Theming via CSS variables.** The rendered document reads all of its colors
-from custom properties, so light/dark is a single class on `<html>` rather
-than a duplicated stylesheet. The choice follows the OS preference until the
-user makes an explicit one, then persists. A tiny inline script in
-`index.html` applies the saved theme before first paint to avoid a flash.
+**Theming via CSS variables.** Document colors come from custom properties. Light/dark is one class on `<html>`. Follows OS until user overrides, then persists. Inline script in `index.html` applies saved theme before first paint — no flash.
 
 ## Markdown handling
 
-- Parser: `remark-parse` + `remark-gfm` (tables, strikethrough, task lists,
-  autolinks) + `remark-math` (inline and display LaTeX).
-- Sanitization: `rehype-sanitize` with an extended GitHub schema (allows
-  task-list checkboxes and syntax-highlight classes, nothing else beyond
-  the default). Raw HTML embedded in the markdown source is not passed
-  through (`allowDangerousHtml: false`), so `<script>` or `onerror=`
-  payloads in an uploaded file are inert by construction, not just
-  filtered after the fact.
-- Malformed input: the pipeline never throws — `markdownToHtml` wraps
-  processing in a try/catch and falls back to escaped preformatted text on
-  a hard failure. React-level failures are additionally caught by an
-  `ErrorBoundary` around the render so one bad file can't blank the app.
-  I stress-tested against `src/fixtures/torture-test.md` (reachable from the
-  empty state via "a stress test"): unclosed code fences,
-  broken tables, dangling link syntax, unterminated bold markers, and
-  content after an unclosed fence. None of these crash the app; the parser
-  (`remark`, CommonMark-compliant) resolves most of them the way GitHub
-  itself would.
+- Parser: `remark-parse` + `remark-gfm` (tables, strikethrough, task lists, autolinks) + `remark-math`
+- Sanitization: `rehype-sanitize` with extended GitHub schema. Raw HTML doesn't pass through (`allowDangerousHtml: false`). `<script>` or `onerror=` payloads are inert by construction.
+- Malformed input: pipeline never throws. `markdownToHtml` wraps everything in try/catch, falls back to escaped preformatted text on hard failure. `ErrorBoundary` catches React-level failures. Tested against `src/fixtures/torture-test.md` — unclosed fences, broken tables, dangling syntax, unterminated markers. None crash.
 
-## Copy button
+## Copy behavior
 
-One button, `navigator.clipboard.write()` with a multi-format
-`ClipboardItem`:
+Single button using `navigator.clipboard.write()` with multi-format `ClipboardItem`:
 
-- `text/html` — the rendered HTML with every element's styling inlined
-  (`utils/htmlInliner.js`). Inlining matters because paste targets don't
-  carry external stylesheets; without it, Word/Docs would receive bare,
-  unstyled tags.
-- `text/plain` — walked from the same rendered HTML (`utils/htmlToPlainText.js`),
-  preserving block structure: blank lines between paragraphs, `- ` / `1. `
-  list markers, `> ` quote prefixes, `text (url)` for links.
-- `text/markdown` — the original source, written opportunistically inside
-  its own try/catch. Browser support for arbitrary clipboard MIME types is
-  inconsistent (Chrome/Edge generally accept it via `ClipboardItem`, other
-  browsers may reject the whole write if it's included), so it's attempted
-  first and silently dropped from the payload if the browser rejects it —
-  the HTML and plain-text formats always still go through.
-- Fallback chain: if `ClipboardItem`/`navigator.clipboard.write` isn't
-  available at all, falls back to `writeText(plainText)`, and finally to a
-  hidden-textarea `execCommand('copy')` for very old environments.
+- `text/html` — rendered HTML with every style inlined (paste targets don't carry external stylesheets)
+- `text/plain` — walked from same HTML, preserving block structure, list markers, quote prefixes, link text
+- `text/markdown` — original source (opportunistic; browsers may reject, we silently drop it and still deliver HTML + plain)
 
-Both copy paths share a `prepareCopyContainer` step (`utils/copyPrep.js`) that
-(1) strips the on-screen code-block chrome — the language label and per-block
-Copy button are interface, not content, and must not paste into Word — and
-(2) replaces rendered KaTeX with its original TeX source, since copying
-KaTeX's dual MathML+HTML output verbatim produces duplicated, garbled text.
+Fallbacks: `writeText(plainText)` → hidden-textarea `execCommand('copy')`.
 
-Each code block also has its **own** Copy button that lifts just that block's
-source (delegated through a single click handler on the document container,
-since the rendered doc is injected HTML rather than React components).
+Both copy paths run through `prepareCopyContainer`: strips code-block chrome (labels + copy buttons), replaces rendered KaTeX with original TeX source (copying KaTeX's dual MathML+HTML output produces garbled text).
 
-Tested by pasting into Google Docs, Word Online, plain-text fields, and
-Slack's message composer.
+Each code block has its own copy button too — delegates through a single click handler on the container.
+
+Tested against Google Docs, Word Online, plain fields, Slack.
 
 ## Accessibility & responsiveness
 
-- Visible focus rings globally (`:focus-visible`), not just on inputs, and
-  tuned for both themes.
-- `prefers-reduced-motion` respected — animations (fade-in on render, the
-  progress bar) are disabled for users who've opted out.
-- Icon-only controls (copy, theme toggle, sidebar/menu toggles) have explicit
-  `aria-label`s; the active outline entry carries `aria-current`.
-- Upload zone is a real `<label>`/`<input type="file">` pair, keyboard-
-  reachable and screen-reader-announced, not a `div` with a click handler.
-- **Mobile:** the outline becomes a slide-over drawer (`role="dialog"`,
-  `aria-modal`, closes on Escape or backdrop tap) instead of vanishing. Wide
-  tables and code blocks scroll inside their own container, so the page body
-  never scrolls sideways on a phone.
-- Theme respects `prefers-color-scheme` and exposes `color-scheme` so native
-  form controls and scrollbars match.
+- Visible focus rings everywhere, tuned for both themes
+- `prefers-reduced-motion` respected — animations disabled
+- Icon-only controls have explicit `aria-label`s; active outline entry gets `aria-current`
+- Upload zone is a real `<label>`/`<input>` pair — keyboard-reachable, screen-reader-announced
+- Mobile: outline becomes slide-over drawer (`role="dialog"`, `aria-modal`, Escape/backdrop closes). Wide tables + code blocks scroll inside container — page never scrolls sideways on phone
+- `color-scheme` set so native controls + scrollbars match theme
 
-## What I'd improve with more time
+## What I'd do with more time
 
-- **Syntax-highlight colors don't survive copy.** The clipboard HTML inlines
-  layout/color styling per tag, but not the individual `hljs-*` token
-  colors inside code blocks — a pasted code block is monochrome. Would
-  extend `htmlInliner.js` to also inline computed styles for highlight
-  spans.
-- **Bundle size.** highlight.js's common-language grammars plus KaTeX push the
-  JS bundle to ~800 KB (~245 KB gzipped). Fine for a desktop tool, but I'd
-  code-split KaTeX and lazy-load highlight grammars on demand before calling
-  it done.
-- **Inline `$…$` vs. currency.** Enabling inline math means `$5 … $10` in
-  prose can occasionally be read as an equation. I kept inline math on because
-  it's common and intentional in AI output; a heuristic (ignore `$` followed
-  by a digit-and-space) would remove most false positives.
-- **`text/markdown` clipboard support is unverified across all browsers** —
-  by spec this format isn't part of the standard clipboard allow-list, so
-  it works where the browser permits it and degrades silently elsewhere,
-  per the assignment's own wording. Would add an explicit fallback affordance
-  (e.g., a small "Markdown copied separately" toast) if a browser rejects it.
-- **No automated test suite.** Given the time box I relied on the
-  torture-test fixture and manual testing against Word/Docs/Slack rather
-  than writing React Testing Library specs. That fixture would be the
-  starting point for real tests.
-- **Large files (multi-MB)** are capped at 8MB client-side but I haven't
-  profiled rendering performance beyond that; very large tables in
-  particular could get slow since the table isn't virtualized.
-- **No persistent history** — only one file is ever "open," by design per
-  the spec, but a small recent-files list (session-only, no backend) would
-  be a natural next step.
+- **Syntax colors don't survive copy.** Clipboard HTML inlines layout styles but not `hljs-*` token colors. Pasted code blocks are monochrome. Would extend `htmlInliner.js` to inline computed styles for highlight spans.
+- **Bundle size.** highlight.js + KaTeX push JS to ~800 KB (~245 KB gzipped). Fine for desktop, but I'd code-split KaTeX + lazy-load highlight grammars.
+- **Inline `$` vs. currency.** Enabling inline math means `$5 ... $10` in prose can get read as equations. Kept it on because it's intentional in AI output. A heuristic (ignore `$` followed by digit+space) would fix most false positives.
+- **`text/markdown` clipboard support is spotty.** Works where browsers permit, degrades silently elsewhere. Would add a "Markdown copied separately" toast on rejection.
+- **No automated test suite.** Relied on torture-test fixture + manual testing against Word/Docs/Slack. That fixture would be the starting point for real tests.
+- **Large files (multi-MB)** capped at 8MB client-side. Haven't profiled beyond that — very large tables could get slow (not virtualized).
+- **No persistent history.** Only one file "open" by design, but a session-only recent-files list would be a natural next step.
